@@ -10,8 +10,8 @@ class Agent {
 	     ){
     this.velocity = velocity;
     this.body = new THREE.Mesh(bodyShape, skin);
+    
     //TODO: Clean up below
-
     this.body.rotation.x = orientation.x;
     this.body.rotation.y = orientation.y;
     this.body.rotation.z = orientation.z;
