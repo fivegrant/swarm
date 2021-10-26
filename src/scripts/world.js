@@ -26,7 +26,7 @@ class World {
       this.scene.add(new THREE.AmbientLight(0x666666, 100));
 
       /////Set up Camera/////
-      this.camera.position.set(0, 0, -30);
+      this.camera.position.set(25, 5, 30);
       this.camera.lookAt(0, 0, 0);
 
       /////Ensure Singleton/////
@@ -60,7 +60,7 @@ class World {
 
 }
 
-export {World};
+export { World };
 
 /*
    Slight help on JS class details around singletons
