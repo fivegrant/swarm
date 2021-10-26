@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { World } from '/scripts/world.js';
 
 const AVERSION = 0.5
-const CORRELATION = 0.3
+const CORRELATION = 0//0.01
 const COHESION = 0.1
 
 
@@ -22,7 +22,7 @@ const findDirection = function(vector){
 class Agent {
   constructor(position = new THREE.Vector3(0,0,0), 
               orientation = new THREE.Vector3(0,0,0), 
-	      velocity = new THREE.Vector3(0.1,0,0),
+	      velocity = new THREE.Vector3(0.5,0,0),
 	      bodyShape = new THREE.ConeGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
@@ -85,15 +85,16 @@ class Agent {
     ///Collision Avoidance/// TODO: Implement
     for (var agent of this.world.agents){
       if (this.isClose(agent)){
-	this.velocity.multiplyScalar(1 - AVERSION);
-        this.velocity.add(agent.clone().multiplyScalar(CORRELATION));
+	//this.velocity.multiplyScalar(1 - AVERSION);
+        //this.velocity.add(agent.velocity.clone().multiplyScalar(AVERSION));
+	continue
       }
     }
     ///Velocity Matching///   TODO: Implement
     for (var agent of this.world.agents){
       if (this.isVisible(agent)){
 	this.velocity.multiplyScalar(1 - CORRELATION);
-        this.velocity.add(agent.clone().multiplyScalar(CORRELATION));
+        this.velocity.add(agent.velocity.clone().multiplyScalar(CORRELATION));
       }
     }
     ///Flock Centering///     TODO: Implement
