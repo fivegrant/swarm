@@ -10,16 +10,16 @@ import { Agent } from '/scripts/agent.js';
 const world = new World()
 const agent = new Agent();
 const agent2 = new Agent(new THREE.Vector3(1,0,1), 
-                         new THREE.Vector3(0,0,0), 
-	                 new THREE.Vector3(0,0.5,0),
-                         new THREE.ConeGeometry(),
+	                 new THREE.Vector3(0,1,0),
+			 1,
+                         new THREE.SphereGeometry(),
                          new THREE.MeshBasicMaterial({color:0x000fff})
                         );
 
 const agent3 = new Agent(new THREE.Vector3(-3,-3,-3), 
-                         new THREE.Vector3(0,0,0), 
-	                 new THREE.Vector3(0,0,0.5),
-                         new THREE.ConeGeometry(),
+	                 new THREE.Vector3(0,0,1),
+			 1,
+                         new THREE.SphereGeometry(),
                          new THREE.MeshBasicMaterial({color:0xffffff})
                          );
 

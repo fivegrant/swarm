@@ -21,22 +21,19 @@ const findDirection = function(vector){
 
 class Agent {
   constructor(position = new THREE.Vector3(0,0,0), 
-              orientation = new THREE.Vector3(0,0,0), 
-	      velocity = new THREE.Vector3(0.5,0,0),
-	      bodyShape = new THREE.ConeGeometry(),
+	      direction = new THREE.Vector3(1,0,0),
+	      speed = 1,
+	      bodyShape = new THREE.SphereGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
-    this.velocity = velocity;
+    this.direction = direction.normalize();
+    this.speed = speed;
     this.body = new THREE.Mesh(bodyShape, skin);
     this.world = new World();
     this.personalSpace = 4;
     this.sightRadius = 10;
     
     //TODO: Clean up below
-    this.body.rotation.x = orientation.x;
-    this.body.rotation.y = orientation.y;
-    this.body.rotation.z = orientation.z;
-
     this.body.position.x = position.x;
     this.body.position.y = position.y;
     this.body.position.z = position.z;
@@ -46,21 +43,11 @@ class Agent {
     return this.body.position;
   }
 
-  get orientation(){
-    return this.body.rotation;
-  }
-
   //TODO: Clean up setters
   set position(value){
     this.body.position.x = value.x;
     this.body.position.y = value.y;
     this.body.position.z = value.z;
-  }
-
-  set orientation(value){
-    this.body.rotation.x = value.x;
-    this.body.rotation.y = value.y;
-    this.body.rotation.z = value.z;
   }
 
   isClose(agent){
@@ -74,15 +61,16 @@ class Agent {
   }
 
   step(){
+    console.log(this.direction.length(),"before");
     /////Check Boundaries/////
-    const direction = this.world.outOfBounds(this.position);
+    const boundary = this.world.outOfBounds(this.position);
     // Unclear if hamund product is implemented for Vector3d
-    this.velocity = new THREE.Vector3( direction.x * this.velocity.x,
-                                       direction.y * this.velocity.y,
-                                       direction.z * this.velocity.z
-                                     );
+    this.direction = new THREE.Vector3( boundary.x * this.direction.x,
+                                        boundary.y * this.direction.y,
+                                        boundary.z * this.direction.z
+                                      );
 
-    ///Collision Avoidance/// TODO: Implement
+    ///Collision Avoidance///
     for (var agent of this.world.agents){
       if (this.isClose(agent)){
 	//this.velocity.multiplyScalar(1 - AVERSION);
@@ -90,21 +78,18 @@ class Agent {
 	continue
       }
     }
-    ///Velocity Matching///   TODO: Implement
+    ///Velocity Matching///
     for (var agent of this.world.agents){
       if (this.isVisible(agent)){
-	this.velocity.multiplyScalar(1 - CORRELATION);
-        this.velocity.add(agent.velocity.clone().multiplyScalar(CORRELATION));
+	this.direction.multiplyScalar(1 - CORRELATION);
+        this.direction.add(agent.direction.clone().multiplyScalar(CORRELATION));
       }
     }
-    ///Flock Centering///     TODO: Implement
+    ///Flock Centering///
     const center = this.world.agents.map((x,y) => x.position + y.position,0);
 
-
-    this.position = this.position.add(this.velocity);
-    //TODO: Change orientation properly
-    this.orientation = findDirection(this.velocity);
-
+    console.log(this.direction.length(),"after");
+    this.position = this.position.add(this.direction).multiplyScalar(this.speed);
   }
 
 }
