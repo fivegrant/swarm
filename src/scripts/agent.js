@@ -22,7 +22,7 @@ const findDirection = function(vector){
 class Agent {
   constructor(position = new THREE.Vector3(0,0,0), 
 	      direction = new THREE.Vector3(1,0,0),
-	      speed = 0.10,
+	      speed = 0.3,
 	      bodyShape = new THREE.SphereGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
@@ -30,7 +30,7 @@ class Agent {
     this.speed = speed;
     this.body = new THREE.Mesh(bodyShape, skin);
     this.world = new World();
-    this.personalSpace = 7;
+    this.personalSpace = 4;
     this.sightRadius = 15;
     
     //TODO: Clean up below

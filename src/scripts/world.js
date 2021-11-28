@@ -44,6 +44,10 @@ class World {
     this.scene.add(this.agents[i].body);
   };
 
+  reset(){
+    this.agents.splice(0);
+    this.scene.clear()
+  };
 
   //Returns coefficients that flip the component if it's out of bounds
   //TODO: Make this cleaner
