@@ -1,9 +1,10 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
 
 class World {
   constructor(
-              from = new THREE.Vector3(-10,-10,-10), 
-              to = new THREE.Vector3(10,10,10) //assuming components are all greater than from
+              from = new THREE.Vector3(-50,-50,-50), 
+              to = new THREE.Vector3(50,50,50) //assuming components are all greater than from
              ){                                //TODO: Enforce the above
 
     if(!World.singleton){
@@ -28,6 +29,8 @@ class World {
       /////Set up Camera/////
       this.camera.position.set(25, 5, 30);
       this.camera.lookAt(0, 0, 0);
+      const controls = new OrbitControls(this.camera, this.renderer.domElement);
+
 
       /////Ensure Singleton/////
       World.singleton = this;
@@ -54,6 +57,7 @@ class World {
 
   simulate() {
     requestAnimationFrame( this.simulate.bind(this) );
+    this.agents.map(x => x.updateDirection());
     this.agents.map(x => x.step());
     this.renderer.render( this.scene, this.camera );
   };

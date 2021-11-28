@@ -1,9 +1,9 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { World } from '/scripts/world.js';
 
-const AVERSION = 0.5
-const CORRELATION = 0//0.01
-const COHESION = 0.1
+const AVERSION = 0.4
+const CORRELATION = 0.07
+const COHESION = 0.03
 
 
 const findDirection = function(vector){
@@ -22,7 +22,7 @@ const findDirection = function(vector){
 class Agent {
   constructor(position = new THREE.Vector3(0,0,0), 
 	      direction = new THREE.Vector3(1,0,0),
-	      speed = 1,
+	      speed = 0.10,
 	      bodyShape = new THREE.SphereGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
@@ -30,8 +30,8 @@ class Agent {
     this.speed = speed;
     this.body = new THREE.Mesh(bodyShape, skin);
     this.world = new World();
-    this.personalSpace = 4;
-    this.sightRadius = 10;
+    this.personalSpace = 7;
+    this.sightRadius = 15;
     
     //TODO: Clean up below
     this.body.position.x = position.x;
@@ -60,8 +60,16 @@ class Agent {
     return diff.length() <= (this.sightRadius + agent.sightRadius);
   }
 
-  step(){
-    console.log(this.direction.length(),"before");
+  affect(vec, scalar){
+    if (vec.length() != 0){
+      vec.normalize().multiplyScalar(scalar);
+      this.direction.multiplyScalar(1 - CORRELATION);
+      this.direction.add(vec);
+      this.direction.normalize();
+    }
+  }
+
+  updateDirection(){
     /////Check Boundaries/////
     const boundary = this.world.outOfBounds(this.position);
     // Unclear if hamund product is implemented for Vector3d
@@ -71,25 +79,39 @@ class Agent {
                                       );
 
     ///Collision Avoidance///
+    var avoidingVec = new THREE.Vector3();
     for (var agent of this.world.agents){
-      if (this.isClose(agent)){
-	//this.velocity.multiplyScalar(1 - AVERSION);
-        //this.velocity.add(agent.velocity.clone().multiplyScalar(AVERSION));
-	continue
+      if (this.isClose(agent) && agent != this){
+        avoidingVec.add(
+	  new THREE.Vector3().subVectors(agent.position, this.position).multiplyScalar(-1)
+	);
       }
     }
-    ///Velocity Matching///
-    for (var agent of this.world.agents){
-      if (this.isVisible(agent)){
-	this.direction.multiplyScalar(1 - CORRELATION);
-        this.direction.add(agent.direction.clone().multiplyScalar(CORRELATION));
-      }
-    }
-    ///Flock Centering///
-    const center = this.world.agents.map((x,y) => x.position + y.position,0);
+    this.affect(avoidingVec, AVERSION);
 
-    console.log(this.direction.length(),"after");
-    this.position = this.position.add(this.direction).multiplyScalar(this.speed);
+    ///Velocity Matching///
+    var matchingVec = new THREE.Vector3();
+    for (var agent of this.world.agents){
+      if (this.isVisible(agent) && agent != this){
+        matchingVec.add(this.direction);
+      }
+    }
+    this.affect(matchingVec, CORRELATION);
+
+    ///Flock Centering///
+    var centeringVector = new THREE.Vector3();
+    const include = (a,b) => this.isVisible(b) ? new THREE.Vector3((a.x + b.position.x)/2, 
+                                                                   (a.y + b.position.y)/2, 
+							           (a.z + b.position.z)/2) : a;
+    const center = this.world.agents.reduce(include, new THREE.Vector3(0,0,0));
+    centeringVector.subVectors(center, this.position);
+    this.affect(centeringVector, COHESION);
+
+
+  }
+
+  step() {
+    this.position = this.position.add(this.direction.clone().multiplyScalar(this.speed));
   }
 
 }
