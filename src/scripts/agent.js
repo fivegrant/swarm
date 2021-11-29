@@ -1,9 +1,9 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { World } from '/scripts/world.js';
 
-const AVERSION = 0.4
-const CORRELATION = 0.07
-const COHESION = 0.03
+const AVERSION = 0//0.4
+const CORRELATION = 0//0.07
+const COHESION = 0//0.03
 
 
 const findDirection = function(vector){
@@ -23,7 +23,7 @@ class Agent {
   constructor(position = new THREE.Vector3(0,0,0), 
 	      direction = new THREE.Vector3(1,0,0),
 	      speed = 0.3,
-	      bodyShape = new THREE.SphereGeometry(),
+	      bodyShape = new THREE.ConeGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
     this.direction = direction.normalize();
@@ -71,7 +71,7 @@ class Agent {
 
   updateDirection(){
     /////Check Boundaries/////
-    const boundary = this.world.outOfBounds(this.position);
+    const boundary = this.world.outOfBounds(this);
     // Unclear if hamund product is implemented for Vector3d
     this.direction = new THREE.Vector3( boundary.x * this.direction.x,
                                         boundary.y * this.direction.y,
@@ -112,6 +112,16 @@ class Agent {
 
   step() {
     this.position = this.position.add(this.direction.clone().multiplyScalar(this.speed));
+    //this.body.rotation.x = Math.acos(new THREE.Vector3(1,0,0).dot(this.direction));
+    this.body.lookAt(this.direction.clone().add(this.position));
+    this.body.rotation.x += Math.PI / 2
+    this.body.rotation.y += 0
+    this.body.rotation.z += 0
+    console.log(Math.acos(new THREE.Vector3(1,0,0).dot(this.direction)),'x');
+    console.log(Math.acos(new THREE.Vector3(0,1,0).dot(this.direction)),'y');
+    console.log(Math.acos(new THREE.Vector3(0,0,1).dot(this.direction)),'z');
+    //this.body.rotation.y = Math.acos(new THREE.Vector3(0,1,0).dot(this.direction));
+    //this.body.rotation.z = Math.acos(new THREE.Vector3(0,0,1).dot(this.direction));
   }
 
 }

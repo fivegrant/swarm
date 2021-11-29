@@ -18,6 +18,16 @@ class World {
 				                 500,
 				               );
       this.agents = [];
+      this.floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(1000,1000),
+	new THREE.MeshBasicMaterial({color: 0x5d5d5d, side: THREE.DoubleSide})
+      );
+
+      //this.floor.position.y -= from.y + 400;
+      this.floor.position.y = from.y;
+      this.floor.position.y = from.z;
+
+
 
 
       /////Set up Graphical Scene/////
@@ -25,9 +35,11 @@ class World {
       this.renderer.outputEncoding = THREE.sRGBEncoding;
       document.body.appendChild(this.renderer.domElement);
       this.scene.add(new THREE.AmbientLight(0x666666, 100));
+      //this.scene.add(this.floor);
 
       /////Set up Camera/////
-      this.camera.position.set(25, 5, 30);
+      //this.camera.position.set(0, -90, 1);
+      this.camera.position.set(1, 0, 0);
       this.camera.lookAt(0, 0, 0);
       const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
@@ -47,14 +59,15 @@ class World {
   reset(){
     this.agents.splice(0);
     this.scene.clear()
+    this.scene.add(this.floor);
   };
 
   //Returns coefficients that flip the component if it's out of bounds
   //TODO: Make this cleaner
-  outOfBounds(position){
-    const xValid = this.boundaries[0].x < position.x && position.x < this.boundaries[1].x ? 1 : -1;
-    const yValid = this.boundaries[0].y < position.y && position.y < this.boundaries[1].x ? 1 : -1;
-    const zValid = this.boundaries[0].z < position.z && position.z < this.boundaries[1].x ? 1 : -1;
+  outOfBounds(agent){
+    const xValid = this.boundaries[0].x < agent.position.x && agent.position.x < this.boundaries[1].x ? 1 : -1;
+    const yValid = this.boundaries[0].y < agent.position.y && agent.position.y < this.boundaries[1].x ? 1 : -1;
+    const zValid = this.boundaries[0].z < agent.position.z && agent.position.z < this.boundaries[1].x ? 1 : -1;
 
     return new THREE.Vector3(xValid,yValid,zValid);
   };
