@@ -6,8 +6,8 @@ import { GUI } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/libs/dat
 * ^ This is how we can snag other functionality from three.js
 */
 
-import { World } from '/scripts/world.js';
-import { Agent } from '/scripts/agent.js';
+import { World } from '/swarm/scripts/world.js';
+import { Agent } from '/swarm/scripts/agent.js';
 
 const parameters = {
   aversion: 0.25,

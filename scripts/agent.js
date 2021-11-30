@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-import { World } from '/scripts/world.js';
+import { World } from '/swarm/scripts/world.js';
 
 const defaultParameters = {
   aversion: 0.25,
