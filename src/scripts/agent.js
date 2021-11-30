@@ -1,37 +1,29 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { World } from '/scripts/world.js';
 
-const AVERSION = 0//0.4
-const CORRELATION = 0//0.07
-const COHESION = 0//0.03
-
-
-const findDirection = function(vector){
-    const r = vector.length();
-    const theta = Math.acos(vector.z/vector.length());
-    const omega = Math.atan2(vector.y,vector.x);
-    /*
-    const X = new THREE.Vector3(0,1,0);
-    const Y = new THREE.Vector3(0,0,1);
-    //return new THREE.Euler(X.angleTo(vector),Y.angleTo(vector),0);
-    return new THREE.Euler(X.angleTo(vector),0,Y.angleTo(vector));
-    */
-    return new THREE.Euler(-omega,omega,-theta);
+const defaultParameters = {
+  aversion: 0.25,
+  correlation: 0.1,
+  cohesion: 0.08,
+  personalSpace: 4,
+  sightRadius: 15,
 }
 
 class Agent {
-  constructor(position = new THREE.Vector3(0,0,0), 
+  constructor(parameters = defaultParameters,
+              position = new THREE.Vector3(0,0,0), 
 	      direction = new THREE.Vector3(1,0,0),
 	      speed = 0.3,
 	      bodyShape = new THREE.ConeGeometry(),
 	      skin = new THREE.MeshBasicMaterial({color:0xff00ff})
 	     ){
+    this.parameters = parameters;
     this.direction = direction.normalize();
     this.speed = speed;
     this.body = new THREE.Mesh(bodyShape, skin);
     this.world = new World();
-    this.personalSpace = 4;
-    this.sightRadius = 15;
+    //this.personalSpace = 4;
+    //this.sightRadius = 15;
     
     //TODO: Clean up below
     this.body.position.x = position.x;
@@ -52,18 +44,18 @@ class Agent {
 
   isClose(agent){
     const diff = this.position.clone(agent.position);
-    return diff.length() <= (this.personalSpace + agent.personalSpace);
+    return diff.length() <= (this.parameters.personalSpace + agent.parameters.personalSpace);
   }
 
   isVisible(agent){
     const diff = this.position.clone(agent.position);
-    return diff.length() <= (this.sightRadius + agent.sightRadius);
+    return diff.length() <= (this.parameters.sightRadius + agent.parameters.sightRadius);
   }
 
   affect(vec, scalar){
     if (vec.length() != 0){
       vec.normalize().multiplyScalar(scalar);
-      this.direction.multiplyScalar(1 - CORRELATION);
+      this.direction.multiplyScalar(1 - scalar);
       this.direction.add(vec);
       this.direction.normalize();
     }
@@ -87,7 +79,7 @@ class Agent {
 	);
       }
     }
-    this.affect(avoidingVec, AVERSION);
+    this.affect(avoidingVec, this.parameters.aversion);
 
     ///Velocity Matching///
     var matchingVec = new THREE.Vector3();
@@ -96,7 +88,7 @@ class Agent {
         matchingVec.add(this.direction);
       }
     }
-    this.affect(matchingVec, CORRELATION);
+    this.affect(matchingVec, this.parameters.correlation);
 
     ///Flock Centering///
     var centeringVector = new THREE.Vector3();
@@ -105,7 +97,7 @@ class Agent {
 							           (a.z + b.position.z)/2) : a;
     const center = this.world.agents.reduce(include, new THREE.Vector3(0,0,0));
     centeringVector.subVectors(center, this.position);
-    this.affect(centeringVector, COHESION);
+    this.affect(centeringVector, this.parameters.cohesion);
 
 
   }
@@ -117,9 +109,11 @@ class Agent {
     this.body.rotation.x += Math.PI / 2
     this.body.rotation.y += 0
     this.body.rotation.z += 0
+    /*
     console.log(Math.acos(new THREE.Vector3(1,0,0).dot(this.direction)),'x');
     console.log(Math.acos(new THREE.Vector3(0,1,0).dot(this.direction)),'y');
     console.log(Math.acos(new THREE.Vector3(0,0,1).dot(this.direction)),'z');
+    */
     //this.body.rotation.y = Math.acos(new THREE.Vector3(0,1,0).dot(this.direction));
     //this.body.rotation.z = Math.acos(new THREE.Vector3(0,0,1).dot(this.direction));
   }

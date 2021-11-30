@@ -25,7 +25,7 @@ class World {
 
       //this.floor.position.y -= from.y + 400;
       this.floor.position.y = from.y;
-      this.floor.position.y = from.z;
+      //this.floor.position.y = from.z;
 
 
 
@@ -39,7 +39,7 @@ class World {
 
       /////Set up Camera/////
       //this.camera.position.set(0, -90, 1);
-      this.camera.position.set(1, 0, 0);
+      this.camera.position.set(35, 0, 0);
       this.camera.lookAt(0, 0, 0);
       const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
@@ -59,7 +59,7 @@ class World {
   reset(){
     this.agents.splice(0);
     this.scene.clear()
-    this.scene.add(this.floor);
+    //this.scene.add(this.floor);
   };
 
   //Returns coefficients that flip the component if it's out of bounds
