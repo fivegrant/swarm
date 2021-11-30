@@ -18,34 +18,28 @@ class World {
 				                 500,
 				               );
       this.agents = [];
-      this.floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(1000,1000),
-	new THREE.MeshBasicMaterial({color: 0x5d5d5d, side: THREE.DoubleSide})
-      );
-
-      //this.floor.position.y -= from.y + 400;
-      this.floor.position.y = from.y;
-      //this.floor.position.y = from.z;
-
-
-
 
       /////Set up Graphical Scene/////
       this.renderer.setSize( window.innerWidth, window.innerHeight ); // Make entire window render the scene
       this.renderer.outputEncoding = THREE.sRGBEncoding;
       document.body.appendChild(this.renderer.domElement);
       this.scene.add(new THREE.AmbientLight(0x666666, 100));
-      //this.scene.add(this.floor);
 
       /////Set up Camera/////
       //this.camera.position.set(0, -90, 1);
-      this.camera.position.set(35, 0, 0);
+      this.camera.position.set(55, 0, 0);
       this.camera.lookAt(0, 0, 0);
       const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
 
       /////Ensure Singleton/////
       World.singleton = this;
+
+
+      /////GUI Options/////
+      this.options = {
+        pause: false
+      };
     }
 
     return World.singleton;
@@ -59,7 +53,6 @@ class World {
   reset(){
     this.agents.splice(0);
     this.scene.clear()
-    //this.scene.add(this.floor);
   };
 
   //Returns coefficients that flip the component if it's out of bounds
@@ -74,9 +67,11 @@ class World {
 
   simulate() {
     requestAnimationFrame( this.simulate.bind(this) );
-    this.agents.map(x => x.updateDirection());
-    this.agents.map(x => x.step());
-    this.renderer.render( this.scene, this.camera );
+    if(!this.options.pause){
+      this.agents.map(x => x.updateDirection());
+      this.agents.map(x => x.step());
+      this.renderer.render( this.scene, this.camera );
+    }
   };
 
 }

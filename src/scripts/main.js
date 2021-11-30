@@ -18,11 +18,12 @@ const parameters = {
 }
 
 const world = new World()
+// Init default scene
 const agent = new Agent(parameters);
 const agent2 = new Agent(parameters,
                          new THREE.Vector3(1,0,1), 
 	                 new THREE.Vector3(0,1,0),
-			 0.7,//0.1,
+			 0.1,
                          new THREE.ConeGeometry(),
                          new THREE.MeshBasicMaterial({color:0x000fff})
                         );
@@ -40,8 +41,6 @@ const agent5 = new Agent(parameters, new THREE.Vector3(-9,-9,-9));
 const agent6 = new Agent(parameters, new THREE.Vector3(-9,9,-9));
 const agent7 = new Agent(parameters, new THREE.Vector3(-9,9,9));
 const agent8 = new Agent(parameters, new THREE.Vector3(-12,19,9));
-
-//world.add(new Agent(new THREE.Vector3(), new THREE.Vector3()));
 
 world.add(agent)
 world.add(agent2)
@@ -86,18 +85,16 @@ const state = {
                                            }
 				   ),
   reset: () => world.reset(),
-  x: 0,
-  y: 0,
-  z: 0
 };
 
-const create = gui.addFolder('create agent');
+const create = gui.addFolder('agent creation');
 create.add(state, 'color');
 create.add(state, 'speed', 0.01 , 1);
-create.add(state, 'add');
-create.add(state, 'addWithCustomBehavior');
+const addAgent = create.add(state, 'add');
+addAgent.name('add agent');
 
-const behavior = gui.addFolder('alter universal behavior');
+
+const behavior = gui.addFolder('universal behavior');
 behavior.add(parameters, 'aversion',0 , 1, 0.001);
 behavior.add(parameters, 'correlation', 0, 1, 0.001);
 behavior.add(parameters, 'cohesion', 0, 1, 0.001);
@@ -105,25 +102,17 @@ behavior.add(parameters, 'personalSpace', 0, 15, 0.1)
 behavior.add(parameters, 'sightRadius', 0, 30, 0.1)
 
 
-const customBehavior = create.addFolder('specialize behavior in agent creation');
-create.add(state, 'aversion',0 , 1, 0.001);
-create.add(state, 'correlation', 0, 1, 0.001);
-create.add(state, 'cohesion', 0, 1, 0.001);
-create.add(state, 'personalSpace', 0, 15, 0.1)
-create.add(state, 'sightRadius', 0, 30, 0.1)
+const customBehavior = create.addFolder('behavior customization');
+customBehavior.add(state, 'aversion',0 , 1, 0.001);
+customBehavior.add(state, 'correlation', 0, 1, 0.001);
+customBehavior.add(state, 'cohesion', 0, 1, 0.001);
+customBehavior.add(state, 'personalSpace', 0, 15, 0.1)
+customBehavior.add(state, 'sightRadius', 0, 30, 0.1)
+const addAgentSpecial = customBehavior.add(state, 'addWithCustomBehavior');
+addAgentSpecial.name('add special agent');
 
-gui.add(state ,'reset');
-
-const dev = gui.addFolder('dev');
-var optX = dev.add(state, 'x', 0.0 , 2 * Math.PI, 0.1);
-optX.onChange(() => world.agents.map((a) => a.body.rotation.x = state.x));
-var optY = dev.add(state, 'y', 0.0 , 2 * Math.PI, 0.1);
-optY.onChange(() => world.agents.map((a) => a.body.rotation.y = state.y));
-var optZ = dev.add(state, 'z', 0.0 , 2 * Math.PI, 0.1);
-optZ.onChange(() => world.agents.map((a) => a.body.rotation.z = state.z));
-
-
-
-
+const options = gui.addFolder('options');
+const reset = options.add(state, 'reset');
+const pause = options.add(world.options, 'pause');
 
 world.simulate()
